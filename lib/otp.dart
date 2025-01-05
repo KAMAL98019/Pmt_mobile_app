@@ -45,13 +45,14 @@ class _OtpPageState extends State<OtpPage> {
     debugPrint(jsonEncode(res));
 if (res['data'] != null && res['data']['responseCode'] == "200") {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            // final Map<String, dynamic> data = {
-            //   "mobileNumber": res["data"]["mobileNumber"],
-            //   "userId": res["data"]["userId"],
-            //   "verificationStatus": res["data"]["verificationStatus"]
-            // };
+            final Map<String, dynamic> data = {
+              "mobileNumber": res["data"]["mobileNumber"],
+              "userId": res["data"]["userId"],
+              "verificationStatus": res["data"]["verificationStatus"]
+            };
+            print(data);
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => LanguageSelectPage()));
+                context, MaterialPageRoute(builder: (context) => LanguageSelectPage(data:jsonEncode(data),)));
           });
         } else {
           toastification.show(

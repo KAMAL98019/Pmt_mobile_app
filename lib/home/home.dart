@@ -17,16 +17,20 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 120,
-            ),
+            // Responsive Banner Image with BoxFit.contain
             Center(
-                child: Image(
-              image: AssetImage('assets/topbarimage.png'),
-            )),
-            SizedBox(
-              height: 30,
+              child: Container(
+                width:
+                    double.infinity, // Make it responsive across screen sizes
+                height: MediaQuery.of(context).size.height *
+                    0.3, // Adjust the height to be responsive
+                child: Image.asset(
+                  'assets/topbarimage.png',
+                  fit: BoxFit.contain, // Ensure the image fits without cropping
+                ),
+              ),
             ),
+            SizedBox(height: 5),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

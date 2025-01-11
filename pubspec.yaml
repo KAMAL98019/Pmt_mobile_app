@@ -46,6 +46,9 @@ dependencies:
   fluttertoast: ^8.2.10
   toastification: ^2.3.0
   translator: ^1.0.3+1
+  image_picker: ^1.1.2
+  permission_handler: ^10.2.0
+
 
 dev_dependencies:
   flutter_test:

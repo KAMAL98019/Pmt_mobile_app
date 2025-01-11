@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:pmt_trust/Language/languageservices.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
 import 'package:pmt_trust/home/form.dart';
 import 'package:pmt_trust/home/home.dart';
 import 'package:pmt_trust/home/profile.dart';
 import 'package:toastification/toastification.dart';
-import 'package:translator/translator.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Index extends StatefulWidget {
   final int userId;
@@ -19,42 +18,52 @@ class Index extends StatefulWidget {
 }
 
 class _IndexState extends State<Index> {
-  final List<Widget> _pages = [HomePage(), FormPage(), ProfilePage()];
-
+  late List<Widget> _pages;
   int _currentIndex = 0;
   final apiService = ApiService();
-  final translator = GoogleTranslator();
+  final languageService = LanguageService();
+
+  List<String> _labels = ["Home", "Form", "Profile"];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // print(widget.userId);
-    // print(widget.lang);
+    _initializePages(widget.lang); // Initialize pages with the provided lang
     updateLanguage(widget.userId, widget.lang);
+    // print(widget.lang);
   }
 
-  // setState(() {
-  //   _pages[0] = HomePage(userId: userId, lang: lang);
-  //   _pages[1] = FormPage(userId: userId, lang: lang);
-  //   _pages[2] = ProfilePage(userId: userId, lang: lang);
-  // });
-
-  // initially trigger update language
+  void _initializePages(String lang) {
+    _pages = [
+      HomePage(lang: lang),
+      FormPage(lang: lang),
+      ProfilePage(),
+    ];
+  }
 
   void updateLanguage(int userId, String lang) async {
-    print("updated language: $lang");
-    print("UserId: $userId");
+    setState(() {
+      _isLoading = true;
+    });
+
     var res = await apiService.updateLanguage("/updateLanguage", userId, lang);
     if (res != null) {
-      // Access specific fields from the response
-      String message =
-          res["message"]; // e.g., "language updated successfully !"
-      bool error =
-          res["error"] == "true"; // Convert "true"/"false" string to bool
-      String userId = res["userId"]; // e.g., 51
+      String message = res["message"];
+      bool error = res["error"] == "true";
 
-      // Handle the response status
       if (!error) {
+        List<String> originalLabels = ["Home", "Form", "Profile"];
+        Map<String, String> translatedTexts =
+            await languageService.translateText(originalLabels, lang);
+
+        setState(() {
+          _labels = originalLabels.map((label) => translatedTexts[label]!).toList();
+          _isLoading = false;
+        });
+
+        _initializePages(lang); // Reinitialize pages with updated lang
+
         toastification.show(
           context: context,
           title: Text(message),
@@ -62,6 +71,10 @@ class _IndexState extends State<Index> {
           autoCloseDuration: const Duration(seconds: 5),
         );
       } else {
+        setState(() {
+          _isLoading = false;
+        });
+
         toastification.show(
           context: context,
           title: Text(message),
@@ -70,63 +83,59 @@ class _IndexState extends State<Index> {
         );
       }
     } else {
+      setState(() {
+        _isLoading = false;
+      });
+
       print("No response from the server.");
     }
   }
 
   void _onItemTapped(int index) {
     setState(() {
-      _currentIndex = index; // Update the selected page index
+      _currentIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      
-      appBar: AppBar(),
+     
       body: _pages[_currentIndex],
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26, // Shadow color
-              offset: Offset(0, -1), // Position of shadow (above)
-              blurRadius: 3, // Blur radius for the shadow
-              spreadRadius: 0, // Spread radius for the shadow
+      bottomNavigationBar: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Container(
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, -1),
+                    blurRadius: 3,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              child: BottomNavigationBar(
+                currentIndex: _currentIndex,
+                onTap: _onItemTapped,
+                selectedItemColor: const Color.fromRGBO(239, 7, 3, 1),
+                selectedLabelStyle:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                unselectedLabelStyle: const TextStyle(fontSize: 12),
+                iconSize: 24,
+                items: List.generate(
+                  _labels.length,
+                  (index) => BottomNavigationBarItem(
+                    icon: Icon(
+                      [Ionicons.home, Ionicons.newspaper, Ionicons.person][index],
+                    ),
+                    label: _labels[index],
+                  ),
+                ),
+              ),
             ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: _onItemTapped,
-          selectedItemColor: Color.fromRGBO(239, 7, 3, 1),
-          selectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16), // Smaller font size for selected label
-          unselectedLabelStyle:
-              TextStyle(fontSize: 12), // Smaller font size for unselected label
-          iconSize: 24, // Smaller icon size,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Ionicons.home),
-              label: "Home",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Ionicons.newspaper),
-              label: 'Form',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Ionicons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
-

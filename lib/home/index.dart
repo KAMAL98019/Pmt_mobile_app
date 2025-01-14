@@ -22,6 +22,7 @@ class _IndexState extends State<Index> {
   int _currentIndex = 0;
   final apiService = ApiService();
   final languageService = LanguageService();
+  int memberid = 0;
 
   List<String> _labels = ["Home", "Form", "Profile"];
   bool _isLoading = true;
@@ -29,16 +30,46 @@ class _IndexState extends State<Index> {
   @override
   void initState() {
     super.initState();
-    _initializePages(widget.lang); // Initialize pages with the provided lang
+
+    _initializePages(
+        widget.lang, widget.userId); // Initialize pages with the provided lang
     updateLanguage(widget.userId, widget.lang);
+    getmemberid(widget.userId);
     // print(widget.lang);
   }
 
-  void _initializePages(String lang) {
+  void getmemberid(int id) async {
+    try {
+      // Call the API to extract member ID
+      dynamic response =
+          await apiService.extractmemberID("/getHomePage/user", id);
+
+      // Check if the response contains the expected data structure
+      if (response != null &&
+          response['data'] != null &&
+          response['data']['member_id'] != null) {
+        int memberId = response['data']['member_id'];
+        setState(() {
+          memberid = memberId;
+        });
+        print("Extracted Member ID: $memberId");
+      } else {
+        print("Error: Response does not contain member_id.");
+        setState(() {
+          memberid = 0;
+        });
+      }
+    } catch (e) {
+      // Handle any exceptions
+      print("Error fetching member ID: $e");
+    }
+  }
+
+  void _initializePages(String lang, int userID) {
     _pages = [
-      HomePage(lang: lang),
-      FormPage(lang: lang),
-      ProfilePage(),
+      HomePage(lang: lang,userID: userID,memberId: memberid),
+      FormPage(lang: lang, userID: userID,memberId: memberid,),
+      ProfilePage(userId: userID, lang: lang)
     ];
   }
 
@@ -56,13 +87,17 @@ class _IndexState extends State<Index> {
         List<String> originalLabels = ["Home", "Form", "Profile"];
         Map<String, String> translatedTexts =
             await languageService.translateText(originalLabels, lang);
-
+// Manually update "Form" to "படிவம்" if the language is Tamil
+        if (lang == 'ta') {
+          translatedTexts["Form"] = "படிவம்";
+        }
         setState(() {
-          _labels = originalLabels.map((label) => translatedTexts[label]!).toList();
+          _labels =
+              originalLabels.map((label) => translatedTexts[label]!).toList();
           _isLoading = false;
         });
 
-        _initializePages(lang); // Reinitialize pages with updated lang
+        _initializePages(lang, userId); // Reinitialize pages with updated lang
 
         toastification.show(
           context: context,
@@ -100,7 +135,6 @@ class _IndexState extends State<Index> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: _pages[_currentIndex],
       bottomNavigationBar: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -129,7 +163,11 @@ class _IndexState extends State<Index> {
                   _labels.length,
                   (index) => BottomNavigationBarItem(
                     icon: Icon(
-                      [Ionicons.home, Ionicons.newspaper, Ionicons.person][index],
+                      [
+                        Ionicons.home,
+                        Ionicons.newspaper,
+                        Ionicons.person
+                      ][index],
                     ),
                     label: _labels[index],
                   ),

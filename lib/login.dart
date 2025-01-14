@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
 import 'package:pmt_trust/otp.dart';
@@ -60,7 +61,11 @@ class _LoginPageState extends State<LoginPage> {
               "verificationId": res["data"]["verificationId"]
             };
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => OtpPage(data: jsonEncode(data),)));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => OtpPage(
+                          data: jsonEncode(data),
+                        )));
           });
         } else {
           toastification.show(
@@ -89,6 +94,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Color.fromRGBO(255, 248, 0, 1), // Status bar
+              statusBarIconBrightness: Brightness.dark),
           toolbarHeight: 180.2,
           backgroundColor: Colors.transparent,
           elevation: 0, // Remove shadow from the AppBar

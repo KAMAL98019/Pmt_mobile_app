@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pmt_trust/Language/languageservices.dart';
+import 'package:pmt_trust/home/form.dart';
 
 class HomePage extends StatefulWidget {
   final String lang;
+   final int userID;
+  final int memberId; 
 
-  const HomePage({required this.lang, Key? key}) : super(key: key);
+  const HomePage({required this.lang, required this.userID, required this.memberId});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -30,7 +33,8 @@ class _HomePageState extends State<HomePage> {
       if (mounted) {
         setState(() {
           // Update labels with translated values
-          labels = labels.map((label) => translatedTexts[label] ?? label).toList();
+          labels =
+              labels.map((label) => translatedTexts[label] ?? label).toList();
           _isLoading = false; // Stop loading state
         });
       }
@@ -48,8 +52,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+      ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator()) // Show a loader while translations load
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Show a loader while translations load
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(22.0),
@@ -59,12 +67,14 @@ class _HomePageState extends State<HomePage> {
                     // Responsive Banner Image with BoxFit.contain
                     Center(
                       child: Container(
-                        width: double.infinity, // Make it responsive across screen sizes
+                        width: double
+                            .infinity, // Make it responsive across screen sizes
                         height: MediaQuery.of(context).size.height *
                             0.3, // Adjust the height to be responsive
                         child: Image.asset(
                           'assets/topbarimage.png',
-                          fit: BoxFit.contain, // Ensure the image fits without cropping
+                          fit: BoxFit
+                              .contain, // Ensure the image fits without cropping
                         ),
                       ),
                     ),
@@ -72,7 +82,13 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // Navigate to JoinFormPage
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => FormPage(lang: widget.lang, userID: widget.userID, memberId: widget.memberId,)),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(239, 7, 3, 1),
                           shape: RoundedRectangleBorder(

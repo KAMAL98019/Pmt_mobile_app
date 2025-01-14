@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_verification_code/flutter_verification_code.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
 import 'package:pmt_trust/languageselect.dart';
@@ -35,42 +36,44 @@ class _OtpPageState extends State<OtpPage> {
     var res = await apiService.PostMobileNumber(
         "/sendOTP", jsonResponse['mobileNumber']);
     // debugPrint(jsonEncode(res)["verificationId"]);
-    validate  = res['data']['verificationId'];
+    validate = res['data']['verificationId'];
   }
 
   void ValidateOtp() async {
     // print("$_code,${jsonResponse['verificationId']}");
-    var res = await apiService.OtpValidate(
-        "/validateOTP", _code, validate);
+    var res = await apiService.OtpValidate("/validateOTP", _code, validate);
     debugPrint(jsonEncode(res));
-if (res['data'] != null && res['data']['responseCode'] == "200") {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final Map<String, dynamic> data = {
-              "mobileNumber": res["data"]["mobileNumber"],
-              "userId": res["data"]["userId"],
-              "verificationStatus": res["data"]["verificationStatus"]
-            };
-            print(data);
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => LanguageSelectPage(data:jsonEncode(data),)));
-          });
-        } else {
-          toastification.show(
-            context: context,
-            type: ToastificationType.error,
-            autoCloseDuration: const Duration(seconds: 3),
-            title: Text(
-              '${res["message"]}',
-              style:
-                  const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              overflow:
-                  TextOverflow.visible, // Ensures text wraps or is fully shown
-            ),
-            alignment: Alignment.bottomCenter,
-            direction: TextDirection.ltr,
-            animationDuration: const Duration(milliseconds: 300),
-          );
-        }
+    if (res['data'] != null && res['data']['responseCode'] == "200") {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final Map<String, dynamic> data = {
+          "mobileNumber": res["data"]["mobileNumber"],
+          "userId": res["data"]["userId"],
+          "verificationStatus": res["data"]["verificationStatus"]
+        };
+        print(data);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LanguageSelectPage(
+                      data: jsonEncode(data),
+                    )));
+      });
+    } else {
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        autoCloseDuration: const Duration(seconds: 3),
+        title: Text(
+          '${res["message"]}',
+          style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          overflow:
+              TextOverflow.visible, // Ensures text wraps or is fully shown
+        ),
+        alignment: Alignment.bottomCenter,
+        direction: TextDirection.ltr,
+        animationDuration: const Duration(milliseconds: 300),
+      );
+    }
   }
 
   @override
@@ -84,7 +87,9 @@ if (res['data'] != null && res['data']['responseCode'] == "200") {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // Disable the default back button
-
+        systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Color.fromRGBO(255, 248, 0, 1), // Status bar
+            statusBarIconBrightness: Brightness.dark),
         toolbarHeight: 180.2,
         backgroundColor: Colors.transparent,
         elevation: 0, // Remove shadow from the AppBar

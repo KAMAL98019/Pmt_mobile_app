@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pmt_trust/Language/languageservices.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
+import 'package:pmt_trust/login.dart';
 import 'package:toastification/toastification.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfilePage extends StatefulWidget {
   final int userId;
@@ -30,6 +33,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isLanguageChanging = false;
   XFile? _selectedImage;
 
+  final storage = FlutterSecureStorage();
+
   Map<String, String> translatedLabels = {
     "Name": "Name",
     "Email": "Email",
@@ -46,32 +51,32 @@ class _ProfilePageState extends State<ProfilePage> {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _fetchProfileDetails();
-    _translateLabels();
+    // _translateLabels();
   }
 
-  Future<void> _translateLabels() async {
-    setState(() {
-      _isLanguageChanging = true;
-    });
+  // Future<void> _translateLabels() async {
+  //   setState(() {
+  //     _isLanguageChanging = true;
+  //   });
 
-    List<String> labels = [
-      "Name",
-      "Email",
-      "Gender",
-      "Enter your name",
-      "Enter your email",
-      "Select Gender",
-      "Update Profile",
-    ];
+  //   List<String> labels = [
+  //     "Name",
+  //     "Email",
+  //     "Gender",
+  //     "Enter your name",
+  //     "Enter your email",
+  //     "Select Gender",
+  //     "Update Profile",
+  //   ];
 
-    var translations = await languageService.translateText(labels, widget.lang);
-    if (mounted) {
-      setState(() {
-        translatedLabels = translations;
-        _isLanguageChanging = false;
-      });
-    }
-  }
+  //   var translations = await languageService.translateText(labels, widget.lang);
+  //   if (mounted) {
+  //     setState(() {
+  //       translatedLabels = translations;
+  //       _isLanguageChanging = false;
+  //     });
+  //   }
+  // }
 
   Future<void> _fetchProfileDetails() async {
     try {
@@ -107,8 +112,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _updateProfile() async {
     try {
       String? updatedFileLocation = _fileLocation;
-
-    
 
       // Prepare updated profile data
       Map<String, dynamic> updatedData = {
@@ -164,100 +167,121 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  // Function to log out the user
+  void _logout() async {
+    await storage.delete(key: 'userId');
+    await storage.delete(key: 'lang');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _isLanguageChanging
-            ? const Center()
-            : Text(translatedLabels["Update Profile"] ?? "Update Profile"),
-        centerTitle: true,
-      ),
-      body: _isLanguageChanging
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                children: [
-                  Center(
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
+    return Localizations.override(
+      context: context,
+      locale: Locale(widget.lang),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.updateProfile),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.exit_to_app),
+                  onPressed: _logout,
+                ),
+              ],
+            ),
+            body: _isLoading ? Center(child: CircularProgressIndicator()) :
+            Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ListView(
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.grey[300],
-                          backgroundImage: _fileLocation != null
-                              ? (_fileLocation!.startsWith('http')
-                                  ? NetworkImage(_fileLocation!)
-                                  : FileImage(File(_fileLocation!)))
-                              : null,
-                          child: _fileLocation == null
-                              ? const Icon(Icons.camera_alt,
-                                  size: 40, color: Colors.white)
-                              : null,
-                        ),
-                        GestureDetector(
-                          onTap: _pickImage,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2,
+                        Center(
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.grey[300],
+                                backgroundImage: _fileLocation != null
+                                    ? (_fileLocation!.startsWith('http')
+                                        ? NetworkImage(_fileLocation!)
+                                        : FileImage(File(_fileLocation!)))
+                                    : null,
+                                child: _fileLocation == null
+                                    ? const Icon(Icons.camera_alt,
+                                        size: 40, color: Colors.white)
+                                    : null,
                               ),
-                            ),
-                            padding: const EdgeInsets.all(4.0),
-                            child: const Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: Colors.white,
-                            ),
+                              GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          AppLocalizations.of(context)!.name,
+                          AppLocalizations.of(context)!.enterYourName ?? "Enter your name",
+                          _nameController,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          AppLocalizations.of(context)!.email,
+                          AppLocalizations.of(context)!.enterYourEmail ?? "Enter your email",
+                          _emailController,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDropdown(
+                          AppLocalizations.of(context)!.gender ?? "Gender",
+                          AppLocalizations.of(context)!.selectGender ?? "Select Gender",
+                          _selectedGender,
+                          genderOptions,
+                          (value) {
+                            setState(() {
+                              _selectedGender = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton(
+                          onPressed: _updateProfile,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            textStyle: const TextStyle(fontSize: 16),
+                            backgroundColor: const Color.fromRGBO(239, 7, 3, 1),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.updateProfile ?? "Update Profile",
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    translatedLabels["Name"] ?? "Name",
-                    translatedLabels["Enter your name"] ?? "Enter your name",
-                    _nameController,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    translatedLabels["Email"] ?? "Email",
-                    translatedLabels["Enter your email"] ?? "Enter your email",
-                    _emailController,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildDropdown(
-                    translatedLabels["Gender"] ?? "Gender",
-                    translatedLabels["Select Gender"] ?? "Select Gender",
-                    _selectedGender,
-                    genderOptions,
-                    (value) {
-                      setState(() {
-                        _selectedGender = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
-                    onPressed: _updateProfile,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      textStyle: const TextStyle(fontSize: 16),
-                      backgroundColor: const Color.fromRGBO(239, 7, 3, 1),
-                    ),
-                    child: Text(
-                      translatedLabels["Update Profile"] ?? "Update Profile",
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          );
+        }
+      ),
     );
   }
 

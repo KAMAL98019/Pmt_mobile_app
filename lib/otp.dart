@@ -117,7 +117,7 @@ class _OtpPageState extends State<OtpPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "Enter 4 digit verification code \nSent to your phone number",
+                      "Enter 5 digit verification code \nSent to your phone number",
                       style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,

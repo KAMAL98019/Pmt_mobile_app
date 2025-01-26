@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                             color: Color.fromRGBO(34, 34, 34, 1)),
                       ),
                       Text(
-                        "We will send you a 4 digit verification code",
+                        "We will send you a 5 digit verification code",
                         style: TextStyle(
                             fontSize: 14.0,
                             color: Color.fromRGBO(51, 50, 50, 0.7),
@@ -175,6 +175,8 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         initialCountryCode: 'IN',
+                        showCountryFlag: false,
+                        showDropdownIcon: false,
                         onChanged: (phone) {
                           print(phone.completeNumber);
                         },

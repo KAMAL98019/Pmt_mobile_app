@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
 import 'package:pmt_trust/otp.dart';
@@ -21,33 +22,45 @@ class _LoginPageState extends State<LoginPage> {
   void _On_Submit() async {
     // print(_controller.text);
     if (_controller.text.isEmpty) {
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text(
-          'Enter The Phone Number',
-          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-        ),
-        alignment: Alignment.bottomCenter,
-        direction: TextDirection.ltr,
-        animationDuration: const Duration(milliseconds: 300),
-      );
+      // toastification.show(
+      //   context: context,
+      //   type: ToastificationType.error,
+      //   style: ToastificationStyle.flat,
+      //   autoCloseDuration: const Duration(seconds: 5),
+      //   title: Text(
+      //     'Enter The Phone Number',
+      //     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+      //   ),
+      //   alignment: Alignment.bottomCenter,
+      //   direction: TextDirection.ltr,
+      //   animationDuration: const Duration(milliseconds: 300),
+      // );
+      Fluttertoast.showToast(msg: "Enter The Phone Number",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0);
     } else if (_controller.text.length != 10) {
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text(
-          'Enter The Valid Phone Number',
-          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-        ),
-        alignment: Alignment.bottomCenter,
-        direction: TextDirection.ltr,
-        animationDuration: const Duration(milliseconds: 300),
-      );
+      // toastification.show(
+      //   context: context,
+      //   type: ToastificationType.error,
+      //   style: ToastificationStyle.flat,
+      //   autoCloseDuration: const Duration(seconds: 5),
+      //   title: Text(
+      //     'Enter The Valid Phone Number',
+      //     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+      //   ),
+      //   alignment: Alignment.bottomCenter,
+      //   direction: TextDirection.ltr,
+      //   animationDuration: const Duration(milliseconds: 300),
+      // );
+      Fluttertoast.showToast(msg: "Enter The Valid Phone Number",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0);
     } else {
       try {
         final res = await apiService.PostMobileNumber(
@@ -68,24 +81,32 @@ class _LoginPageState extends State<LoginPage> {
                         )));
           });
         } else {
-          toastification.show(
-            context: context,
-            type: ToastificationType.error,
-            autoCloseDuration: const Duration(seconds: 3),
-            title: Text(
-              '${res["message"] ?? "An error occurred"}. Retry After 60 seconds',
-              style:
-                  const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              overflow:
-                  TextOverflow.visible, // Ensures text wraps or is fully shown
-            ),
-            alignment: Alignment.bottomCenter,
-            direction: TextDirection.ltr,
-            animationDuration: const Duration(milliseconds: 300),
+          // toastification.show(
+          //   context: context,
+          //   type: ToastificationType.error,
+          //   autoCloseDuration: const Duration(seconds: 3),
+          //   title: Text(
+          //     '${res["message"] ?? "An error occurred"}. Retry After 60 seconds',
+          //     style:
+          //         const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          //     overflow:
+          //         TextOverflow.visible, // Ensures text wraps or is fully shown
+          //   ),
+          //   alignment: Alignment.bottomCenter,
+          //   direction: TextDirection.ltr,
+          //   animationDuration: const Duration(milliseconds: 300),
+          // );
+          Fluttertoast.showToast(
+            msg: '${res["message"] ?? "An error occurred"}. Retry After 60 seconds',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
           );
         }
       } catch (e) {
-        print(e);
+        print("error: $e");
       }
     }
   }
@@ -94,8 +115,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Color.fromRGBO(255, 248, 0, 1), // Status bar
+              statusBarColor: Colors.transparent, // Status bar
               statusBarIconBrightness: Brightness.dark),
           toolbarHeight: 180.2,
           backgroundColor: Colors.transparent,

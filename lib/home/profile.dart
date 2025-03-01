@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pmt_trust/Language/languageservices.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
@@ -27,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _selectedGender;
   String? _fileLocation;
 
-  final List<String> genderOptions = ['Male', 'Female', 'Other'];
+  final List<String> genderOptions = ['Male', 'Female', 'TransGender'];
 
   bool _isLoading = true;
   bool _isLanguageChanging = false;
@@ -50,7 +51,14 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _nameController = TextEditingController();
     _emailController = TextEditingController();
-    _fetchProfileDetails();
+    if (widget.userId != 0) {
+      _fetchProfileDetails();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
     // _translateLabels();
   }
 
@@ -79,38 +87,74 @@ class _ProfilePageState extends State<ProfilePage> {
   // }
 
   Future<void> _fetchProfileDetails() async {
-    try {
-      var profileResponse =
-          await apiservices.GetProfile("/getProfile", widget.userId);
-      if (profileResponse != null && profileResponse['data'] != null) {
-        var profileData = profileResponse['data'][0];
-        if (mounted) {
+    int attempts = 0;
+    const int maxAttempts = 3;
+    const Duration retryDelay = Duration(seconds: 500);
+
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+
+    while (attempts < maxAttempts) {
+      try {
+        var profileResponse =
+            await apiservices.GetProfile("/getProfile", widget.userId);
+        print("Profile Response: $profileResponse");
+        if (profileResponse != null && profileResponse['data'] != null) {
+          var profileData = profileResponse['data'][0];
+
+          _nameController.text = profileData['name'] ?? '';
+          _emailController.text = profileData['email'] ?? '';
+
           setState(() {
-            _nameController.text = profileData['name'] ?? '';
-            _emailController.text = profileData['email'] ?? '';
             _selectedGender = profileData['gender'];
             _fileLocation = profileData['file_location'] != null
                 ? '${profileData['file_location']}?t=${DateTime.now().millisecondsSinceEpoch}'
                 : null;
             _isLoading = false;
           });
+
+          return; // Exit function if successful
+        } else {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         }
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        print("No profile data found.");
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+
+        print("Attempt ${attempts + 1}: Error fetching profile details: $e");
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      print("Error fetching profile details: $e");
+
+      attempts++;
+      if (attempts < maxAttempts) {
+        await Future.delayed(retryDelay);
+      }
     }
+
+    // If all attempts fail
+    setState(() {
+      _isLoading = false;
+    });
+
+    // toastification.show(
+    //   context: context,
+    //   title: Text("Failed to load profile details. Please try again."),
+    //   autoCloseDuration: Duration(seconds: 3),
+    //   foregroundColor: Colors.red,
+    // );
   }
 
   Future<void> _updateProfile() async {
     try {
+      // setState(() {
+      //   _isLoading = true;
+      // });
       String? updatedFileLocation = _fileLocation;
 
       // Prepare updated profile data
@@ -127,32 +171,76 @@ class _ProfilePageState extends State<ProfilePage> {
         updatedData,
       );
 
-      if (result != null) {
-        print("Profile updated successfully: $result");
-
-        // Refresh profile details after update
-        await _fetchProfileDetails();
-
-        toastification.show(
-          context: context,
-          title: Text('Profile updated successfully'),
-          autoCloseDuration: const Duration(seconds: 3),
-          type: ToastificationType.success,
-          style: ToastificationStyle.flatColored,
+      print(result);
+      if (result["error"] == true) {
+        Fluttertoast.showToast(
+            msg: result["message"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }else{
+        Fluttertoast.showToast(msg: result["message"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0
         );
-      } else {
-        throw Exception("Profile update failed");
       }
-    } catch (e) {
-      print("Error updating profile: $e");
 
-      toastification.show(
-        context: context,
-        title: Text('Profile update failed'),
-        autoCloseDuration: const Duration(seconds: 3),
-        type: ToastificationType.error,
-        style: ToastificationStyle.flatColored,
-      );
+      // if (result != null) {
+      //   print("Profile updated successfully: $result");
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   // Refresh profile details after update
+      //   await _fetchProfileDetails();
+
+      //   if (mounted) {
+      //     // toastification.show(
+      //     //   context: context,
+      //     //   title: Text('Profile updated successfully'),
+      //     //   autoCloseDuration: const Duration(seconds: 3),
+      //     //   type: ToastificationType.success,
+      //     //   style: ToastificationStyle.flatColored,
+      //     // );
+      //     Fluttertoast.showToast(
+      //         msg: "Profile updated successfully",
+      //         toastLength: Toast.LENGTH_SHORT,
+      //         gravity: ToastGravity.BOTTOM,
+      //         timeInSecForIosWeb: 1,
+      //         backgroundColor: Colors.green,
+      //         textColor: Colors.white,
+      //         fontSize: 16.0);
+      //   }
+      // } else {
+      //   throw Exception("Profile update failed");
+      // }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        // toastification.show(
+        //   context: context,
+        //   title: Text('Profile update failed'),
+        //   autoCloseDuration: const Duration(seconds: 3),
+        //   type: ToastificationType.error,
+        //   style: ToastificationStyle.flatColored,
+        // );
+        // Fluttertoast.showToast(
+        //     msg: e.toString(),
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.BOTTOM,
+        //     timeInSecForIosWeb: 1,
+        //     backgroundColor: Colors.red,
+        //     textColor: Colors.white,
+        //     fontSize: 16.0);
+      }
     }
   }
 
@@ -160,21 +248,68 @@ class _ProfilePageState extends State<ProfilePage> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      setState(() {
-        _selectedImage = image;
-        _fileLocation = image.path; // Update with selected image path
-      });
+      if (mounted) {
+        setState(() {
+          _selectedImage = image;
+          _fileLocation = image.path; // Update with selected image path
+        });
+      }
     }
   }
 
   // Function to log out the user
   void _logout() async {
-    await storage.delete(key: 'userId');
-    await storage.delete(key: 'lang');
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
+    bool? confirmLogout = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Logout Confirmation"),
+          content: const Text("Are you sure you want to log out?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // No, cancel logout
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Yes, confirm logout
+              },
+              child: const Text("Yes"),
+            ),
+          ],
+        );
+      },
     );
+
+    if (confirmLogout == true) {
+      await storage.delete(key: 'userId');
+      await storage.delete(key: 'lang');
+      await storage.delete(key: 'langcheck');
+
+      Fluttertoast.showToast(
+        msg: "You have successfully logged out",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dispose of controllers to prevent memory leaks
+    _nameController.dispose();
+    _emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -182,21 +317,28 @@ class _ProfilePageState extends State<ProfilePage> {
     return Localizations.override(
       context: context,
       locale: Locale(widget.lang),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.updateProfile),
-              centerTitle: true,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.exit_to_app),
-                  onPressed: _logout,
-                ),
-              ],
-            ),
-            body: _isLoading ? Center(child: CircularProgressIndicator()) :
-            Padding(
+      child: Builder(builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(AppLocalizations.of(context)!.updateProfile,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                )),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.exit_to_app),
+                onPressed: _logout,
+              ),
+            ],
+          ),
+          body: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+                  onRefresh: _fetchProfileDetails,
+                  child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: ListView(
                       children: [
@@ -242,25 +384,30 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 16),
                         _buildTextField(
                           AppLocalizations.of(context)!.name,
-                          AppLocalizations.of(context)!.enterYourName ?? "Enter your name",
+                          AppLocalizations.of(context)!.enterYourName ??
+                              "Enter your name",
                           _nameController,
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(
                           AppLocalizations.of(context)!.email,
-                          AppLocalizations.of(context)!.enterYourEmail ?? "Enter your email",
+                          AppLocalizations.of(context)!.enterYourEmail ??
+                              "Enter your email",
                           _emailController,
                         ),
                         const SizedBox(height: 16),
                         _buildDropdown(
                           AppLocalizations.of(context)!.gender ?? "Gender",
-                          AppLocalizations.of(context)!.selectGender ?? "Select Gender",
+                          AppLocalizations.of(context)!.selectGender ??
+                              "Select Gender",
                           _selectedGender,
                           genderOptions,
                           (value) {
-                            setState(() {
-                              _selectedGender = value;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                _selectedGender = value;
+                              });
+                            }
                           },
                         ),
                         const SizedBox(height: 32),
@@ -272,16 +419,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             backgroundColor: const Color.fromRGBO(239, 7, 3, 1),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.updateProfile ?? "Update Profile",
+                            AppLocalizations.of(context)!.updateProfile ??
+                                "Update Profile",
                             style: const TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
                     ),
                   ),
-          );
-        }
-      ),
+                ),
+        );
+      }),
     );
   }
 
@@ -298,7 +446,11 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: InputDecoration(
             hintText: hint,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18.0),
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              borderSide: const BorderSide(
+                color: Colors.grey, // Default border color
+                width: 1.0, // Default border width
+              ),
             ),
           ),
         ),
@@ -326,7 +478,11 @@ class _ProfilePageState extends State<ProfilePage> {
           onChanged: onChanged,
           decoration: InputDecoration(
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18.0),
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              borderSide: const BorderSide(
+                color: Colors.grey, // Default border color
+                width: 1.0, // Default border width
+              ),
             ),
           ),
         ),

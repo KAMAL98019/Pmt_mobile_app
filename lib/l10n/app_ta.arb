@@ -6,11 +6,12 @@
      "membershipjoiningform": "உறுப்பினர் சேர்க்கை படிவம்",
   "name": "பெயர்",
   "fathersName": "தந்தையின் பெயர்",
-  "panchayat": "தொகுதி",
+    "district" : "மாவட்டம்",
+  "legislativeassembly": "சட்டமன்றம்",
   "wardNumber": "வார்டு எண்",
   "voterId": "வோட்டர் ஐடி எண்",
   "aadharNumber": "ஆதார் எண்",
-  "address": "சென்று",
+  "address": "முகவரி",
   "designation": "பதவி",
   "occupation": "வேலை",
   "submit": "சமர்ப்பிக்கவும்",
@@ -29,6 +30,11 @@
   "enterYourName": "உங்கள் பெயரை உள்ளிடவும்",
   "enterYourEmail": "உங்கள் மின்னஞ்சலை உள்ளிடவும்",
   "selectGender": "பாலினத்தை தேர்வு செய்க",
-  "updateProfile": "சுயவிவரத்தை புதுப்பிக்கவும்"
- 
+  "updateProfile": "சுயவிவரத்தை புதுப்பிக்கவும்",
+ "yourregistrationiscurrentlyunderverification": "உங்கள் பதிவு தற்போது சரிபார்ப்பில் உள்ளது.",
+ "verifiedsuccessfully":"வெற்றிகரமாக சரிபார்க்கப்பட்டது",
+ "selectdistrict": "மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
+ "firstselectthedistrict" : "முதலில் மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
+ "legislativeassemblyy" : "சட்டமன்றம்",
+ "selectdesignation":"பதவியைத் தேர்ந்தெடுக்கவும்"
 }

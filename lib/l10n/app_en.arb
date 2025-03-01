@@ -6,7 +6,8 @@
      "membershipjoiningform": "Membership Joining Form",
   "name": "Name",
   "fathersName": "Father's Name",
-  "panchayat": "Panchayat",
+  "district" : "District",
+  "legislativeassembly": "Legislative Assembly",
   "wardNumber": "Ward Number",
   "voterId": "Voter ID Number",
   "aadharNumber": "Aadhar Number",
@@ -29,6 +30,11 @@
   "enterYourName": "Enter your name",
   "enterYourEmail": "Enter your email",
   "selectGender": "Select Gender",
-  "updateProfile": "Update Profile"
-
+  "updateProfile": "Update Profile",
+  "yourregistrationiscurrentlyunderverification": "Your registration is currently under verification.",
+  "verifiedsuccessfully" : "Verified Successfully",
+  "selectdistrict": "Select District",
+  "firstselectthedistrict" : "First select the district",
+  "legislativeassembly":"Legislative Assembly",
+  "selectdesignation":"Select Designation"
 }

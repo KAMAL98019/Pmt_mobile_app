@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_verification_code/flutter_verification_code.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pmt_trust/apiservices/apiservice.dart';
 import 'package:pmt_trust/languageselect.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
@@ -22,98 +24,132 @@ class _OtpPageState extends State<OtpPage> {
   final apiService = ApiService();
   var _code = "";
   var validate = "";
+  bool canPop = false; // Initially, back navigation is disabled
 
   @override
   void initState() {
     super.initState();
-    // Decode the JSON data from the widget's passed data
     jsonResponse = jsonDecode(widget.data);
-    print(jsonResponse);
     validate = jsonResponse['verificationId'];
+
+    // Set a timer to enable back navigation after 60 seconds
+    Timer(Duration(seconds: 60), () {
+      setState(() {
+        canPop = true;
+      });
+    });
   }
 
   void resendOtp() async {
     var res = await apiService.PostMobileNumber(
         "/sendOTP", jsonResponse['mobileNumber']);
-    // debugPrint(jsonEncode(res)["verificationId"]);
     validate = res['data']['verificationId'];
   }
 
   void ValidateOtp() async {
-    // print("$_code,${jsonResponse['verificationId']}");
-    var res = await apiService.OtpValidate("/validateOTP", _code, validate);
-    debugPrint(jsonEncode(res));
-    if (res['data'] != null && res['data']['responseCode'] == "200") {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+  var res = await apiService.OtpValidate("/validateOTP", _code, validate);
+  debugPrint(jsonEncode(res));
+
+  if (res['data'] != null && res['data']['responseCode'] == "200") {
+    // Show success toast before navigating
+    // toastification.show(
+    //   context: context,
+    //   type: ToastificationType.success,
+    //   autoCloseDuration: const Duration(seconds: 3),
+    //   title: const Text(
+    //     "Welcome! We're excited to have you here.",
+    //     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+    //   ),
+    //   alignment: Alignment.bottomCenter,
+    //   animationDuration: const Duration(milliseconds: 300),
+    // );
+
+    Fluttertoast.showToast(msg:"Welcome! We're excited to have you here.", 
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 1,
+    backgroundColor: Colors.green,
+    textColor: Colors.white,
+    fontSize: 16.0
+    );
+
+    // Navigate after a short delay to ensure toast is visible
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
         final Map<String, dynamic> data = {
           "mobileNumber": res["data"]["mobileNumber"],
           "userId": res["data"]["userId"],
           "verificationStatus": res["data"]["verificationStatus"]
         };
-        print(data);
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => LanguageSelectPage(
-                      data: jsonEncode(data),
-                    )));
-      });
-    } else {
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        autoCloseDuration: const Duration(seconds: 3),
-        title: Text(
-          '${res["message"]}',
-          style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          overflow:
-              TextOverflow.visible, // Ensures text wraps or is fully shown
-        ),
-        alignment: Alignment.bottomCenter,
-        direction: TextDirection.ltr,
-        animationDuration: const Duration(milliseconds: 300),
-      );
-    }
+          context,
+          MaterialPageRoute(
+            builder: (context) => LanguageSelectPage(
+              data: jsonEncode(data),
+            ),
+          ),
+        );
+      }
+    });
+  } else {
+    // Show error toast
+    // toastification.show(
+    //   context: context,
+    //   type: ToastificationType.error,
+    //   autoCloseDuration: const Duration(seconds: 3),
+    //   title: Text(
+    //     '${res["message"]}',
+    //     style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+    //   ),
+    //   alignment: Alignment.bottomCenter,
+    //   animationDuration: const Duration(milliseconds: 300),
+    // );
+    Fluttertoast.showToast(msg:"${res["message"]}", 
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 1,
+    backgroundColor: Colors.red,
+    textColor: Colors.white,
+    fontSize: 16.0
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     final String timeout = jsonResponse['timeout'];
     double? timeoutDouble = double.tryParse(timeout);
-    int timeoutDuration = timeoutDouble != null
-        ? timeoutDouble.toInt()
-        : 60; // Default fallback to 60
+    int timeoutDuration = timeoutDouble != null ? timeoutDouble.toInt() : 60;
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Disable the default back button
-        systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Color.fromRGBO(255, 248, 0, 1), // Status bar
-            statusBarIconBrightness: Brightness.dark),
-        toolbarHeight: 180.2,
-        backgroundColor: Colors.transparent,
-        elevation: 0, // Remove shadow from the AppBar
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/topbarimage.png'),
-              fit: BoxFit.cover,
+    return PopScope(
+      canPop: canPop, // Allow back navigation after 60 seconds
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false, 
+          systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent, 
+              statusBarIconBrightness: Brightness.dark),
+          toolbarHeight: 180.2,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/topbarimage.png'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 40,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(22.6),
-              child: SingleChildScrollView(
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(22.6),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
@@ -123,39 +159,27 @@ class _OtpPageState extends State<OtpPage> {
                           fontWeight: FontWeight.bold,
                           color: Color.fromRGBO(34, 34, 34, 1)),
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    SizedBox(height: 20),
                     VerificationCode(
                       textStyle: TextStyle(
                           fontSize: 22.0,
                           fontWeight: FontWeight.w600,
-                          color: Colors
-                              .black), // Customize the text style as needed
+                          color: Colors.black),
                       keyboardType: TextInputType.number,
                       autofocus: true,
-                      underlineColor: Color.fromRGBO(239, 7, 3,
-                          1), // Customize the underline color as needed
+                      underlineColor: Color.fromRGBO(239, 7, 3, 1),
                       length: 5,
-                      cursorColor:
-                          Colors.blue, // Customize the cursor color as needed
-                      // Clear out the background properties, as the code below is set
-
+                      cursorColor: Colors.blue,
                       onCompleted: (String value) {
                         setState(() {
                           _code = value;
                         });
                       },
                       onEditing: (bool value) {
-                        setState(() {
-                          // _onEditing = value;
-                        });
                         print('Edited');
                       },
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    SizedBox(height: 20),
                     Row(
                       children: [
                         Text(
@@ -180,18 +204,11 @@ class _OtpPageState extends State<OtpPage> {
                             duration: timeoutDuration),
                       ],
                     ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
+                    const SizedBox(height: 20.0),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: ValidateOtp
-                        // Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) => LanguageSelectPage()));
-                        ,
+                        onPressed: ValidateOtp,
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromRGBO(239, 7, 3, 1),
                             shape: RoundedRectangleBorder(
@@ -206,9 +223,9 @@ class _OtpPageState extends State<OtpPage> {
                     )
                   ],
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

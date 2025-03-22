@@ -36,5 +36,7 @@
  "selectdistrict": "மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
  "firstselectthedistrict" : "முதலில் மாவட்டத்தைத் தேர்ந்தெடுக்கவும்",
  "legislativeassemblyy" : "சட்டமன்றம்",
- "selectdesignation":"பதவியைத் தேர்ந்தெடுக்கவும்"
+ "selectdesignation":"பதவியைத் தேர்ந்தெடுக்கவும்",
+ "logoutconfirmation":"வெளியேறுதல் உறுதிப்படுத்தல்",
+ "logout":"நீங்கள் நிச்சயமாக வெளியேற விரும்புகிறீர்களா?"
 }

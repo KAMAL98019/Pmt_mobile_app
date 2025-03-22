@@ -68,6 +68,8 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, // Ensure content behind the app bar
+
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(22.0),

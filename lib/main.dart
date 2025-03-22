@@ -45,7 +45,10 @@ class MyApp extends StatelessWidget {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             title: "PMT Trust",
-            home: Center(child: CircularProgressIndicator()),
+            home: Center(
+                child: CircularProgressIndicator(
+              color: Colors.blue,
+            )),
           );
         }
 
@@ -69,6 +72,17 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: "PMT Trust",
+          theme: ThemeData(
+            primarySwatch: Colors.blue, // Ensures blue as the primary color
+            textSelectionTheme: TextSelectionThemeData(
+              cursorColor: Colors.black, // Cursor color
+
+              // ignore: deprecated_member_use
+              selectionColor:
+                  Colors.blue.withOpacity(0.4), // Selected text background
+              selectionHandleColor: Colors.blue, // Handle color
+            ),
+          ),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

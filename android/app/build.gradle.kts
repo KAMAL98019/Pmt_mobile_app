@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.pmt_trust"
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -30,9 +30,9 @@ android {
     defaultConfig {
         applicationId = "com.dev43.pmt"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.2"
+        targetSdk = 35
+        versionCode = 5
+        versionName = "1.0.5"
     }
 
     signingConfigs {
@@ -56,5 +56,7 @@ flutter {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.4.0") // Fixed dependency syntax
+    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.core:core-ktx:1.12.0")
 }
+

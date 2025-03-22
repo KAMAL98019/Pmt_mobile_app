@@ -126,12 +126,12 @@ class _IndexState extends State<Index> {
         int fetchisactive = response['data']['is_active'];
         int fetchismember = response['data']['is_member'];
         setState(() {
-            memberid = fetchedMemberId;
-            isactive = fetchisactive;
-            ismember = fetchismember;
-            _initializePages(
-                widget.lang, widget.userId); // Update pages dynamically
-          });
+          memberid = fetchedMemberId;
+          isactive = fetchisactive;
+          ismember = fetchismember;
+          _initializePages(
+              widget.lang, widget.userId); // Update pages dynamically
+        });
         print("Error: Response does not contain member_id.");
         return false;
       }
@@ -164,7 +164,12 @@ class _IndexState extends State<Index> {
           refreshCallback: _refrehIDS,
           setformindex: setformindex,
         ),
-        FormPage(lang: lang, userID: userID, memberId: memberid, sethomeindex: sethomeindex,),
+        FormPage(
+          lang: lang,
+          userID: userID,
+          memberId: memberid,
+          sethomeindex: sethomeindex,
+        ),
         ProfilePage(userId: userID, lang: lang)
       ];
     });
@@ -229,14 +234,41 @@ class _IndexState extends State<Index> {
     setState(() => _currentIndex = index);
   }
 
+  void handleback() {
+    print("handle back $_currentIndex");
+    if (_currentIndex == 2) {
+      setState(() {
+        _currentIndex = 1;
+      });
+    } else if (_currentIndex == 1) {
+      setState(() {
+        _currentIndex = 0;
+      });
+    } else {
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
+      // ignore: deprecated_member_use
+      onPopInvoked: ((didpop) {
+        if (didpop) {
+          return;
+        }
+        handleback();
+      }),
       child: Scaffold(
+        extendBodyBehindAppBar: true, // Ensure content behind the app bar
+
         body: _pages.isNotEmpty
             ? _pages[_currentIndex]
-            : Center(child: CircularProgressIndicator()),
+            : Center(
+                child: CircularProgressIndicator(
+                color: Colors.blue,
+              )),
         bottomNavigationBar: Container(
           height: 70,
           decoration: BoxDecoration(
@@ -268,7 +300,7 @@ class _IndexState extends State<Index> {
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Ionicons.newspaper),
-                    label: AppLocalizations.of(context)?.form  ?? "",
+                    label: AppLocalizations.of(context)?.form ?? "",
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Ionicons.person),

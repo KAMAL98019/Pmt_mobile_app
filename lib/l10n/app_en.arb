@@ -36,5 +36,7 @@
   "selectdistrict": "Select District",
   "firstselectthedistrict" : "First select the district",
   "legislativeassembly":"Legislative Assembly",
-  "selectdesignation":"Select Designation"
+  "selectdesignation":"Select Designation",
+  "logoutconfirmation" :"Logout Confirmation",
+  "logout":"Are you sure you want to log out?"
 }

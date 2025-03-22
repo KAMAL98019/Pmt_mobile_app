@@ -47,7 +47,7 @@ dependencies:
   toastification: ^2.3.0
   translator: ^1.0.3+1
   image_picker: ^1.1.2
-  permission_handler: ^10.2.0
+  permission_handler: ^11.3.0  # For handling permissions
   flutter_secure_storage: ^9.2.4
   flutter_launcher_icons: ^0.14.3
   dropdown_search: ^5.0.6
@@ -56,6 +56,9 @@ dependencies:
   path_provider: ^2.0.15
   image_gallery_saver_plus: ^3.0.5
   flutter_cache_manager: ^3.4.1
+  pin_code_fields: ^8.0.1
+  flutter_displaymode: ^0.6.0
+  flutter_native_splash: ^2.3.9
 
 
 
@@ -66,7 +69,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
   image_path: "assets/launcher.jpeg"
   min_sdk_android: 21 # android min sdk min:16, default 21
@@ -87,6 +90,7 @@ flutter:
   assets:
     - assets/topbarimage.png
     - assets/profile_placeholder.jpg
+    - assets/bottomcurve.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

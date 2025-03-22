@@ -35,12 +35,13 @@ class _LoginPageState extends State<LoginPage> {
       //   direction: TextDirection.ltr,
       //   animationDuration: const Duration(milliseconds: 300),
       // );
-      Fluttertoast.showToast(msg: "Enter The Phone Number",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0);
+      Fluttertoast.showToast(
+          msg: "Enter The Phone Number",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     } else if (_controller.text.length != 10) {
       // toastification.show(
       //   context: context,
@@ -55,12 +56,13 @@ class _LoginPageState extends State<LoginPage> {
       //   direction: TextDirection.ltr,
       //   animationDuration: const Duration(milliseconds: 300),
       // );
-      Fluttertoast.showToast(msg: "Enter The Valid Phone Number",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0);
+      Fluttertoast.showToast(
+          msg: "Enter The Valid Phone Number",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     } else {
       try {
         final res = await apiService.PostMobileNumber(
@@ -97,13 +99,13 @@ class _LoginPageState extends State<LoginPage> {
           //   animationDuration: const Duration(milliseconds: 300),
           // );
           Fluttertoast.showToast(
-            msg: '${res["message"] ?? "An error occurred"}. Retry After 60 seconds',
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
-          );
+              msg:
+                  '${res["message"] ?? "An error occurred"}. Retry After 60 seconds',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
         }
       } catch (e) {
         print("error: $e");
@@ -114,6 +116,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        extendBodyBehindAppBar: true, // Ensure content behind the app bar
+
         appBar: AppBar(
           automaticallyImplyLeading: false,
           systemOverlayStyle: SystemUiOverlayStyle(

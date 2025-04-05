@@ -34,15 +34,26 @@ class _FormPageState extends State<FormPage> {
   final TextEditingController _aadharController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _designationController = TextEditingController();
-  final TextEditingController _occupationController = TextEditingController();
+  // final TextEditingController _occupationController = TextEditingController();
   final apiservices = ApiService();
   bool? _isloading = true;
   String? selectedDistrict;
   String? selectedConstituency;
   String? selectedDesignation;
+  String? selectedBloodGroup;
   List<String> districtList = [];
   List<String> constituencyList = [];
   List<String> designationlist = [];
+  List<String> bloodgrouplist = [
+    'A+',
+    'A-',
+    'B+',
+    'B-',
+    'AB+',
+    'AB-',
+    'O+',
+    'O-'
+  ];
   Map<String, List<String>> districtConstituencies = {};
   String? _fileLocation;
   XFile? _selectedImage;
@@ -204,8 +215,9 @@ class _FormPageState extends State<FormPage> {
       "adhar_num": _aadharController.text,
       "address": _addressController.text,
       "designation": selectedDesignationId ?? "",
-      "occupation": _occupationController.text,
-      "fileBuffer": updatedFileLocation
+      // "occupation": _occupationController.text,
+      "fileBuffer": updatedFileLocation,
+      "blood_group": selectedBloodGroup ?? ""
     };
   }
 
@@ -230,7 +242,7 @@ class _FormPageState extends State<FormPage> {
         _addressController.text = member['address']?.toString() ?? '';
         _designationController.text =
             member['designation_en']?.toString() ?? '';
-        _occupationController.text = member['occupation']?.toString() ?? '';
+        // _occupationController.text = member['occupation']?.toString() ?? '';
 
         if (!mounted) return false; // Prevent updates if widget is disposed
 
@@ -243,6 +255,7 @@ class _FormPageState extends State<FormPage> {
           _fileLocation = member['file_location'] != null
               ? '${member['file_location']}?t=${DateTime.now().millisecondsSinceEpoch}'
               : null;
+          selectedBloodGroup = member["blood_group"]?.toString() ?? '';
           _isloading = false;
         });
 
@@ -426,10 +439,11 @@ class _FormPageState extends State<FormPage> {
     }
   }
 
- Future<void> _pickImage() async {
-   bool checkstatus = await requestStoragePermissions();  // Request location permissions before picking image
+  Future<void> _pickImage() async {
+    bool checkstatus =
+        await requestStoragePermissions(); // Request location permissions before picking image
 
-    if(checkstatus == false){
+    if (checkstatus == false) {
       return;
     }
 
@@ -440,6 +454,7 @@ class _FormPageState extends State<FormPage> {
       if (mounted) {
         setState(() {
           _selectedImage = image;
+          _fileLocation = image.path; // ✅ Set file path correctly
         });
       }
     }
@@ -454,7 +469,7 @@ class _FormPageState extends State<FormPage> {
     _aadharController.dispose();
     _addressController.dispose();
     _designationController.dispose();
-    _occupationController.dispose();
+    // _occupationController.dispose();
     super.dispose();
   }
 
@@ -543,11 +558,33 @@ class _FormPageState extends State<FormPage> {
                                 ),
                               ),
                               // Name Field
-                              Text(
-                                AppLocalizations.of(context)?.name ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          AppLocalizations.of(context)?.name ??
+                                              "", // Localized text
+                                      style: TextStyle(
+                                        color:
+                                            Colors.black, // Default text color
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: " *", // Asterisk
+                                      style: TextStyle(
+                                        color: Colors
+                                            .red, // Red color for asterisk
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+
                               SizedBox(
                                 height: 10,
                               ),
@@ -598,10 +635,27 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Father's Name Field
-                              Text(
-                                AppLocalizations.of(context)?.fathersName ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.fathersName ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -645,11 +699,28 @@ class _FormPageState extends State<FormPage> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-
-                              Text(
-                                AppLocalizations.of(context)?.district ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              //district
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.district ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -754,12 +825,27 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Panchayat Dropdown
-                              Text(
-                                AppLocalizations.of(context)
-                                        ?.legislativeassembly ??
-                                    "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.legislativeassembly ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -866,10 +952,27 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Ward Number Dropdown
-                              Text(
-                                AppLocalizations.of(context)?.wardNumber ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.wardNumber ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -916,10 +1019,18 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Voter ID Field
-                              Text(
-                                AppLocalizations.of(context)?.voterId ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text:
+                                        AppLocalizations.of(context)?.voterId ??
+                                            "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -965,11 +1076,27 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Aadhar Number Field
-                              Text(
-                                AppLocalizations.of(context)?.aadharNumber ??
-                                    "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.aadharNumber ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -1015,10 +1142,27 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Address Field
-                              Text(
-                                AppLocalizations.of(context)?.address ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text:
+                                        AppLocalizations.of(context)?.address ??
+                                            "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -1064,10 +1208,27 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Designation Field
-                              Text(
-                                AppLocalizations.of(context)?.designation ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.designation ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " *", // Asterisk
+                                    style: TextStyle(
+                                      color:
+                                          Colors.red, // Red color for asterisk
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
@@ -1205,20 +1366,100 @@ class _FormPageState extends State<FormPage> {
                               const SizedBox(height: 16),
 
                               // Occupation Field
-                              Text(
-                                AppLocalizations.of(context)?.occupation ?? "",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              // Text(
+                              //   AppLocalizations.of(context)?.occupation ?? "",
+                              //   style: TextStyle(
+                              //       fontSize: 16, fontWeight: FontWeight.w600),
+                              // ),
+                              // SizedBox(
+                              //   height: 10,
+                              // ),
+                              //  TextField(
+                              //   controller: _occupationController,
+                              //   decoration: InputDecoration(
+                              //       hintText: AppLocalizations.of(context)
+                              //               ?.occupationHint ??
+                              //           "",
+                              //       border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(
+                              //             8), // Rounded corners
+                              //         borderSide: const BorderSide(
+                              //           color:
+                              //               Colors.grey, // Default border color
+                              //           width: 1.0, // Default border width
+                              //         ),
+                              //       ),
+                              //       enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide: const BorderSide(
+                              //           color: Colors
+                              //               .grey, // Color when not focused
+                              //           width: 1.0,
+                              //         ),
+                              //       ),
+                              //       focusedBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide: const BorderSide(
+                              //           color:
+                              //               Colors.blue, // Color when focused
+                              //           width: 2.0,
+                              //         ),
+                              //       ),
+                              //       contentPadding: const EdgeInsets.symmetric(
+                              //         vertical:
+                              //             8, // Vertical padding inside the field
+                              //         horizontal:
+                              //             12, // Horizontal padding inside the field
+                              //       )),
+                              // ),
+
+                              SizedBox(
+                                height: 10,
+                              ),
+                              RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                            ?.bloodgroup ??
+                                        "",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black),
+                                  ),
+                                  // TextSpan(
+                                  //   text: " *", // Asterisk
+                                  //   style: TextStyle(
+                                  //     color:
+                                  //         Colors.red, // Red color for asterisk
+                                  //     fontSize: 16,
+                                  //     fontWeight: FontWeight.w600,
+                                  //   ),
+                                  // ),
+                                ]),
                               ),
                               SizedBox(
                                 height: 10,
                               ),
-                              TextField(
-                                controller: _occupationController,
-                                decoration: InputDecoration(
-                                    hintText: AppLocalizations.of(context)
-                                            ?.occupationHint ??
-                                        "",
+                              //Blood Group
+
+                              SizedBox(
+                                width:
+                                    double.infinity, // Full width of the parent
+
+                                child: DropdownSearch<String>(
+                                  dropdownDecoratorProps:
+                                      DropDownDecoratorProps(
+                                          dropdownSearchDecoration:
+                                              InputDecoration(
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(
+                                        color:
+                                            Colors.blue, // Color when focused
+                                        width: 2.0,
+                                      ),
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(
                                           8), // Rounded corners
@@ -1228,29 +1469,74 @@ class _FormPageState extends State<FormPage> {
                                         width: 1.0, // Default border width
                                       ),
                                     ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color: Colors
-                                            .grey, // Color when not focused
-                                        width: 1.0,
+                                  )),
+                                  popupProps: PopupProps.menu(
+                                    showSearchBox: true, // Enables search box
+                                    searchFieldProps: TextFieldProps(
+                                      decoration: InputDecoration(
+                                        labelText: "Search...",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              8), // Rounded corners
+                                          borderSide: const BorderSide(
+                                            color: Colors
+                                                .grey, // Default border color
+                                            width: 1.0, // Default border width
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                            color: Colors
+                                                .grey, // Color when not focused
+                                            width: 1.0,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: const BorderSide(
+                                            color: Colors
+                                                .blue, // Color when focused
+                                            width: 2.0,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color:
-                                            Colors.blue, // Color when focused
-                                        width: 2.0,
+                                  ),
+                                  items: bloodgrouplist, // Your list of items
+                                  selectedItem: selectedBloodGroup == ""
+                                      ? ''
+                                      : selectedBloodGroup,
+
+                                  dropdownBuilder: (context, selectedItem) {
+                                    return Text(
+                                      selectedItem ??
+                                          AppLocalizations.of(context)
+                                              ?.bloodtypes ??
+                                          "",
+                                      style: TextStyle(
+                                        color: selectedItem == null
+                                            ? const Color.fromARGB(
+                                                255, 30, 29, 29)
+                                            : Colors.black,
+                                        fontSize: 16,
                                       ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical:
-                                          8, // Vertical padding inside the field
-                                      horizontal:
-                                          12, // Horizontal padding inside the field
-                                    )),
+                                    );
+                                  },
+
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedBloodGroup = newValue ??
+                                          ""; // Update the selected district
+                                      selectedBloodGroup =
+                                          newValue ?? ""; // Handle null case
+                                    });
+                                  },
+                                ),
                               ),
+
                               const SizedBox(height: 16),
                               SizedBox(
                                 width: double.infinity,

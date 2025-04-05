@@ -2,27 +2,30 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 
-/// Request only photos permission with retry logic
 Future<bool> requestStoragePermissions() async {
   bool permissionGranted = false;
 
   while (!permissionGranted) {
-    // ✅ Check if photos permission is already granted
-    if (await Permission.photos.isGranted) {
+    if (await Permission.storage.isGranted ||   // ✅ For Android 10 and below
+        await Permission.photos.isGranted) {    // ✅ For Android 11+
       return true;  // ✅ Permission granted
     }
 
-    // 👉 Request photos-only permission
-    var status = await Permission.photos.request();
+    // 👉 Check Android version
+    var status = (await Permission.storage.request());  
+    if (await Permission.photos.isDenied) {  // For Android 11+
+      status = await Permission.photos.request();
+    }
 
+    // ✅ Handle granted permission
     if (status.isGranted) {
-      return true;  // ✅ Permission granted
+      return true;
     }
 
     // ❌ Handle denied cases
     if (status.isDenied) {
       Fluttertoast.showToast(
-        msg: "Photos access denied. Please allow access.",
+        msg: "Storage access denied. Please allow access.",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.orange,
@@ -31,10 +34,9 @@ Future<bool> requestStoragePermissions() async {
       continue;  
     }
 
-    // ❌ Handle permanently denied cases
     if (status.isPermanentlyDenied) {
       Fluttertoast.showToast(
-        msg: "Photos access permanently denied. Open settings.",
+        msg: "Storage access permanently denied. Open settings.",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
@@ -44,9 +46,8 @@ Future<bool> requestStoragePermissions() async {
       return false;
     }
 
-    // Break the loop if no permission is granted
     break;
   }
 
-  return false;  // ❌ Return false if permission is denied or not granted
+  return false;
 }

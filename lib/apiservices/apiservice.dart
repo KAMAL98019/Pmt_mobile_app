@@ -131,10 +131,8 @@ class ApiService {
         return jsonDecode(response.body);
       } else {
         // Handle error response
-        
-          return jsonDecode(
-            await response.body
-          ); 
+
+        return jsonDecode(await response.body);
       }
     } on TimeoutException catch (_) {
       print("Error: Request timed out. Please try again later.");
@@ -262,9 +260,9 @@ class ApiService {
   Future<dynamic> savemember(String endpoint, Map<String, dynamic> data) async {
     final url = Uri.parse('$baseUrl$endpoint');
     print("API URL: $url");
-
     try {
       var request = http.MultipartRequest('POST', url);
+      print(request.fields['blood_group']);
 
       request.fields['user_id'] = data["user_id"].toString();
       request.fields['name'] = data['name'].toString();
@@ -284,7 +282,7 @@ class ApiService {
           request.fields[key] = value.toString();
         }
       });
-
+      request.fields['blood_group'] = data["blood_group"].toString();
       // Handle file upload
       if (data['fileBuffer'] != null) {
         var filePath = data['fileBuffer'];
@@ -320,14 +318,14 @@ class ApiService {
       print("Error: No internet connection or server is unreachable.");
     } catch (e) {
       // print("Error: $e");
-       Fluttertoast.showToast(
-      msg: "Error: ${e.toString().replaceAll("Exception: ", "")}",
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 14.0,
-    );
+      Fluttertoast.showToast(
+        msg: "Error: ${e.toString().replaceAll("Exception: ", "")}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
     }
 
     return null;
@@ -379,7 +377,7 @@ class ApiService {
           request.files.add(file);
         }
       }
-
+      request.fields['blood_group'] = data["blood_group"].toString();
       // Send request
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
@@ -425,7 +423,6 @@ class ApiService {
         } else {
           print("Error: ${response.statusCode}, ${response.body}");
           return jsonDecode(response.body);
-          
         }
       } on TimeoutException catch (_) {
         print("Attempt ${attempt + 1}: Request timed out.");

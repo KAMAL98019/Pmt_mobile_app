@@ -1,8 +1,8 @@
 name: pmt_trust
-description: "A new Flutter project."
+description: 'A new Flutter project.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -47,7 +47,7 @@ dependencies:
   toastification: ^2.3.0
   translator: ^1.0.3+1
   image_picker: ^1.1.2
-  permission_handler: ^11.3.0  # For handling permissions
+  permission_handler: ^11.3.0 # For handling permissions
   flutter_secure_storage: ^9.2.4
   flutter_launcher_icons: ^0.14.3
   dropdown_search: ^5.0.6
@@ -60,18 +60,13 @@ dependencies:
   flutter_displaymode: ^0.6.0
   flutter_native_splash: ^2.3.9
 
-
-
-
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/launcher.jpeg"
+  image_path: 'assets/launcher.jpeg'
   min_sdk_android: 21 # android min sdk min:16, default 21
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -91,6 +86,7 @@ flutter:
     - assets/topbarimage.png
     - assets/profile_placeholder.jpg
     - assets/bottomcurve.png
+    - assets/sign.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

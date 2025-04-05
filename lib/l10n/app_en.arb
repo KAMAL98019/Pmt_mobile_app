@@ -22,6 +22,7 @@
   "wardNumberHint": "Enter your ward number",
   "voterIdHint": "Enter your voter ID number",
   "aadharNumberHint": "Enter your Aadhar number",
+  "bloodtypes":"Blood types",
   "addressHint": "Enter your address",
   "designationHint": "Enter your designation",
   "occupationHint": "Enter your occupation",
@@ -38,5 +39,7 @@
   "legislativeassembly":"Legislative Assembly",
   "selectdesignation":"Select Designation",
   "logoutconfirmation" :"Logout Confirmation",
-  "logout":"Are you sure you want to log out?"
+  "logout":"Are you sure you want to log out?",
+  "bloodgroup": "Blood Group"
+
 }

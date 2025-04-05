@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
   String? selectedDistrict;
   String? selectedConstituency;
   String? selectedDesignation;
-
+  String? selectedBloodGroup;
   String? _fileLocation;
   XFile? _selectedImage;
   @override
@@ -128,6 +128,8 @@ class _HomePageState extends State<HomePage> {
           _fileLocation = member['file_location'] != null
               ? '${member['file_location']}?t=${DateTime.now().millisecondsSinceEpoch}'
               : null;
+          selectedBloodGroup = member["blood_group"]?.toString() ?? '';
+
           _isloading = false;
         });
 
@@ -363,7 +365,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 8),
               Text(
-                "${_nameController.text} (PMT002)",
+                "${_nameController.text}",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -383,9 +385,10 @@ class _HomePageState extends State<HomePage> {
                       buildDetailRow(
                           "Constituency", selectedConstituency ?? ""),
                       buildDetailRow("Aadhar ID", _aadharController.text),
-                      buildDetailRow("Voter ID", _voterIdController.text),
+                      // buildDetailRow("Voter ID", _voterIdController.text),
                       buildDetailRow(
                           "Designation", _designationController.text),
+                      buildDetailRow("Blood Group", selectedBloodGroup ?? ""),
                       buildDetailRow("Mobile", _mobilecontroller.text)
                     ],
                   ),
@@ -400,20 +403,64 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      Image.asset(
+                        "assets/sign.png",
+                        width: 120, // Adjust width
+                        height: 60, // Adjust height
+                        fit: BoxFit.contain,
+                      ),
+
+                      // Text(
+                      //   "A. Sriram...",
+                      //   style: TextStyle(
+                      //     fontSize: 16,
+                      //     fontStyle: FontStyle.italic,
+                      //     fontWeight: FontWeight.w500,
+                      //     color: Colors.green,
+                      //   ),
+                      // ),
+                      SizedBox(height: 1),
                       Text(
-                        "A. Sriram...",
+                        "நிறுவனர்.தலைவர்",
                         style: TextStyle(
-                          fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.green,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      ),
+                      ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [Colors.yellow, Colors.red],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [0.5, 0.5], // 50% for each color
+                        ).createShader(bounds),
+                        child: Stack(
+                          children: [
+                            // Text Border (Outlined Effect)
+                            Text(
+                              "K.N. இசக்கிராஜாதேவர்",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16,
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 2.5 // Adjust thickness
+                                  ..color = Colors.black, // Border color
+                              ),
+                            ),
+
+                            // Main Text (Foreground)
+                            Text(
+                              "K.N. இசக்கிராஜாதேவர்",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16,
+                                color: Colors.white, // Text color
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Signature",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -426,13 +473,21 @@ class _HomePageState extends State<HomePage> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              "assets/bottomcurve.png", // Your bottom curve design
-              fit: BoxFit.cover,
+            child: Container(
               width: double.infinity,
-              height: 70, // Adjust height as needed
+              height: 20,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
+                gradient: LinearGradient(
+                  colors: [Color(0xFFF60000), Color(0xFFFFF80A)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -524,34 +579,35 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
 
-                              // Center(
-                              //   child: widget.ismember != 0 || widget.isactive != 0
-                              //       ? Icon(
-                              //           widget.ismember == 1 && widget.isactive == 0
-                              //               ? Ionicons.time_outline
-                              //               : Ionicons.checkmark_circle_outline,
-                              //           color:
-                              //               widget.ismember == 1 && widget.isactive == 0
-                              //                   ? Color.fromRGBO(230, 174, 64, 1)
-                              //                   : Color.fromRGBO(103, 230, 64, 1),
-                              //           size: 30.0,
-                              //         )
-                              //       : Icon(null),
-                              // ),
-                              // widget.ismember != 0 || widget.isactive != 0
-                              //     ? Text(
-                              //         widget.isactive == 0
-                              //             ? AppLocalizations.of(context)!
-                              //                 .yourregistrationiscurrentlyunderverification
-                              //             : AppLocalizations.of(context)!
-                              //                 .verifiedsuccessfully,
-                              //         style: TextStyle(
-                              //           color: Colors.grey,
-                              //           fontSize: 14.0,
-                              //           fontWeight: FontWeight.w700,
-                              //         ),
-                              //       )
-                              //     : Text(""),
+                              Center(
+                                child: widget.ismember != 0 ||
+                                        widget.isactive != 0
+                                    ? Icon(
+                                        widget.ismember == 1 &&
+                                                widget.isactive == 0
+                                            ? Ionicons.time_outline
+                                            : null,
+                                        color: widget.ismember == 1 &&
+                                                widget.isactive == 0
+                                            ? Color.fromRGBO(230, 174, 64, 1)
+                                            : null,
+                                        size: 30.0,
+                                      )
+                                    : Icon(null),
+                              ),
+                              widget.ismember != 0 || widget.isactive != 0
+                                  ? Text(
+                                      widget.isactive == 0
+                                          ? AppLocalizations.of(context)!
+                                              .yourregistrationiscurrentlyunderverification
+                                          : "",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    )
+                                  : Text(""),
                               SizedBox(height: 30),
 
                               // Landscape ID Card UI with Square Avatar
